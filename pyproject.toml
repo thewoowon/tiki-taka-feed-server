@@ -11,6 +11,14 @@ python = "^3.11"
 fastapi = "^0.111.0"
 uvicorn = "^0.29.0"
 pydantic-settings = "^2.2.1"
+apscheduler = "^3.10.4"
+joblib = "^1.4.2"
+scikit-learn = "1.2.1"
+feedparser = "^6.0.11"
+sqlalchemy = "^2.0.30"
+asyncpg = "^0.29.0"
+asyncio = "^3.4.3"
+greenlet = "^3.0.3"
 
 
 [tool.poetry.group.dev.dependencies]
