@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
 from pydantic import AnyHttpUrl, validator
+from pydantic_settings import BaseSettings
 from typing import List, Union
+
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
@@ -13,9 +14,9 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
             return v
-        raise ValueError(v)
 
     class Config:
         case_sensitive = True
+
 
 settings = Settings()
