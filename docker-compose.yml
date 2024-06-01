@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_dbname
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+asyncpg://your_username:your_password@db/your_dbname
+    depends_on:
+      - db
+    ports:
+      - "30009:30009"  # 호스트의 30009 포트를 컨테이너의 30009 포트로 매핑
