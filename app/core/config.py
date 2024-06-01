@@ -5,7 +5,7 @@ from typing import List, Union
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "My FastAPI Project"
+    PROJECT_NAME: str = "NerdPlanet API"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
