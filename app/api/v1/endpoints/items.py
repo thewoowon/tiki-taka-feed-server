@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from app.utils.refresh_rss_feeds import refresh_rss_feeds
 
 router = APIRouter()
 

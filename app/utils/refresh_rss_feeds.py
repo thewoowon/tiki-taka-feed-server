@@ -14,6 +14,7 @@ job_tags = {
     "AI": 6,
     "LLM": 7,
     "BLOCKCHAIN": 8,
+    "ETC": 9,
 }
 
 skill_tags = {
@@ -27,6 +28,7 @@ skill_tags = {
     "JAVA": 8,
     "C#": 9,
     "PHP": 10,
+    "ETC": 11,
 }
 
 feed_urls = [
@@ -163,7 +165,13 @@ async def refresh_rss_feeds():
             feed = feedparser.parse(url)
             for entry in feed.entries:
                 if "published_parsed" not in entry or entry.published_parsed is None:
-                    continue    
+                    continue
+                if "description" not in entry or entry.description is None:
+                    entry["description"] = ""
+                else:
+                    #정규식으로 모든 쌍따옴표 제거
+                    entry["description"] = re.sub(r'"', '', entry["description"])
+                    entry["description"] = entry["description"][:100]
                 fields, values = generate_insert_query(entry, idx + 1)
                 insert_query = text(f"""
                     INSERT INTO items ({", ".join(fields)})
