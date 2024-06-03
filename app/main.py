@@ -31,10 +31,10 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
-@app.on_event("startup")
-async def startup_event():
-    # 앱 시작 시 한 번 실행
-    await fetch_rss_feeds()
+# @app.on_event("startup")
+# async def startup_event():
+#     # 앱 시작 시 한 번 실행
+#     await fetch_rss_feeds()
 
 
 def start_uvicorn():
