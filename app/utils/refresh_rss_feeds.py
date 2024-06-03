@@ -153,12 +153,7 @@ def generate_insert_query(entry, feed_id):
 
     return fields, values
 
-async def fetch_rss_feeds():
-    today = datetime.date.today()
-    day_before = today - datetime.timedelta(days=1)
-    tm_year, tm_mon, tm_mday = day_before.year, day_before.month, day_before.day
-    day_before_datetime = datetime.datetime(tm_year, tm_mon, tm_mday)
-
+async def refresh_rss_feeds():
     model_path = os.path.join("app", "text_classification_model.pkl")
     model = joblib.load(model_path)
 
@@ -168,25 +163,20 @@ async def fetch_rss_feeds():
             feed = feedparser.parse(url)
             for entry in feed.entries:
                 if "published_parsed" not in entry or entry.published_parsed is None:
-                    continue
-                if (entry.published_parsed.tm_year >= tm_year and
-                    entry.published_parsed.tm_mon >= tm_mon and
-                    entry.published_parsed.tm_mday >= tm_mday):
-                    
-                    fields, values = generate_insert_query(entry, idx + 1)
-                    insert_query = text(f"""
-                        INSERT INTO items ({", ".join(fields)})
-                        VALUES ({", ".join([f":{field}" for field in fields])})
-                    """)
-                    await session.execute(insert_query, values)
-                    predictions = model.predict([entry.title])
-                    result = predictions.tolist()
+                    continue    
+                fields, values = generate_insert_query(entry, idx + 1)
+                insert_query = text(f"""
+                    INSERT INTO items ({", ".join(fields)})
+                    VALUES ({", ".join([f":{field}" for field in fields])})
+                """)
+                await session.execute(insert_query, values)
+                predictions = model.predict([entry.title])
+                result = predictions.tolist()
 
         await session.commit()
 
         rows = await session.execute(
-            text("SELECT * FROM items WHERE published >= :published"),
-            {"published": day_before_datetime}
+            text("SELECT * FROM items"),
         )
         items = rows.fetchall()
         
