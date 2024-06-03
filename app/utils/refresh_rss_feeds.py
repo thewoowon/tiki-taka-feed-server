@@ -4,6 +4,7 @@ import os
 import joblib
 from sqlalchemy import text
 from app.db.session import SessionLocal
+import re
 
 job_tags = {
     "FE": 1,
