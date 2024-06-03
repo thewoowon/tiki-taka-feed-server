@@ -4,6 +4,10 @@ from app.api.v1.api import api_router
 from app.core.config import settings
 from app.utils.fetch_rss_feeds import fetch_rss_feeds
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -11,7 +15,7 @@ app = FastAPI(
 
 # 스케쥴러 매일 새벽 2시에 실행
 scheduler = AsyncIOScheduler()
-scheduler.add_job(fetch_rss_feeds, 'cron', hour=2, minute=0)
+scheduler.add_job(fetch_rss_feeds, "cron", hour=2, minute=0)
 scheduler.start()
 
 # Set all CORS enabled origins
@@ -26,18 +30,23 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+
 @app.on_event("startup")
 async def startup_event():
     # 앱 시작 시 한 번 실행
     await fetch_rss_feeds()
 
+
 def start_uvicorn():
     import uvicorn
+
     # 30009 포트로 변경
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
 
+
 def main():
     start_uvicorn()
+
 
 if __name__ == "__main__":
     main()

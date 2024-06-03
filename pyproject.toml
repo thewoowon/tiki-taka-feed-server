@@ -20,6 +20,7 @@ asyncio = "^3.4.3"
 greenlet = "^3.0.3"
 pydantic = "^2.7.2"
 pydantic-settings = "^2.2.1"
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
