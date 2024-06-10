@@ -16,8 +16,6 @@ RUN poetry install --no-root
 # 애플리케이션 코드 복사
 COPY . .
 
-ENV DATABASE_URL 'postgresql+asyncpg://postgre:planetnerd1!@pg-ffp3k.vpc-pub-cdb-kr.ntruss.com:5432/postgres'
-
 # 배포시 3만 이상의 포트를 사용해야 함
 # 포트 설정 (애플리케이션 실행 포트) -> fastapi는 기본적으로 8000번 포트를 사용
 EXPOSE 8000
