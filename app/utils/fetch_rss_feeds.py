@@ -3,145 +3,34 @@ import datetime
 from sqlalchemy import text
 from app.db.session import SessionLocal
 import re
+import requests
+from bs4 import BeautifulSoup
 
-job_tags = {
-    "FE": 1,
-    "BE": 2,
-    "DEVOPS": 3,
-    "SECURITY": 4,
-    "DATA": 5,
-    "AI": 6,
-    "LLM": 7,
-    "BLOCKCHAIN": 8,
-    "ETC": 9,
-}
-
-skill_tags = {
-    "TYPESCRIPT": 1,
-    "PYTHON": 2,
-    "KOTLIN": 3,
-    "GO": 4,
-    "RUBY": 5,
-    "C++": 6,
-    "C": 7,
-    "JAVA": 8,
-    "C#": 9,
-    "PHP": 10,
-    "ETC": 11,
-}
 
 feed_urls = [
-    # 카카오
-    "https://tech.kakao.com/blog/feed",
-    # # 왓챠
-    # "https://medium.com/feed/watcha",
-    # # 컬리
-    # "https://helloworld.kurly.com/feed",
-    # # 우아한형제들
-    # "https://techblog.woowahan.com/feed",
-    # # 뱅크샐러드
-    # "https://blog.banksalad.com/rss.xml",
-    # # NHN
-    # "https://meetup.nhncloud.com/rss",
-    # # 하이퍼커넥트
-    # "https://hyperconnect.github.io/feed",
-    # # 요기요
-    # "https://techblog.yogiyo.co.kr/feed",
-    # # 이스트소프트
-    # "https://blog.est.ai/feed",
-    # # 플랫팜
-    # "https://medium.com/feed/platfarm",
-    # # 스포카
-    # "https://spoqa.github.io/rss",
-    # # 네이버플레이스
-    # "https://medium.com/feed/naver-place-dev",
-    # # 라인
-    # "https://engineering.linecorp.com/ko/feed/index.html",
-    # # 리디
-    # "https://www.ridicorp.com/feed",
-    # # 네이버
-    # "https://d2.naver.com/d2.atom",
-    # # 데보션
-    # "https://devocean.sk.com/blog/rss.do",
-    # # 구글코리아
-    # "https://feeds.feedburner.com/GoogleDevelopersKorea",
-    # # AWS코리아
-    # "https://aws.amazon.com/ko/blogs/tech/feed",
-    # # 데이블
-    # "https://teamdable.github.io/techblog/feed",
-    # # 토스
-    # "https://toss.tech/rss.xml",
-    # # 스마일게이트
-    # "https://smilegate.ai/recent/feed",
-    # # 롯데온
-    # "https://techblog.lotteon.com/feed",
-    # # 카카오엔터프라이즈
-    # "https://tech.kakaoenterprise.com/feed",
-    # # 메가존클라우드
-    # "https://www.megazone.com/blog/feed",
-    # # SKC&C
-    # "https://engineering-skcc.github.io/feed.xml",
-    # # 여기어때
-    # "https://techblog.gccompany.co.kr/feed",
-    # # 원티드
-    # "https://medium.com/feed/wantedjobs",
-    # # 비브로스
-    # "https://boostbrothers.github.io/rss",
-    # # 포스타입
-    # "https://team.postype.com/rss",
-    # # 지마켓
-    # "https://dev.gmarket.com/feed",
-    # # SK플래닛
-    # "https://techtopic.skplanet.com/rss",
-    # # AB180
-    # "https://raw.githubusercontent.com/ab180/engineering-blog-rss-scheduler/main/rss.xml",
-    # # 데브시스터즈
-    # "https://tech.devsisters.com/rss.xml",
-    # # 넷마블
-    # "https://netmarble.engineering/feed",
-    # # 마키나락스
-    # "https://www.makinarocks.ai/blog/feed",
-    # # 드라마앤컴패니
-    # "https://blog.dramancompany.com/feed",
-    # # 티몬
-    # "https://rss.blog.naver.com/tmondev.xml",
-    # # 루닛
-    # "https://medium.com/feed/lunit",
-    # # 인프런
-    # "https://tech.inflab.com/rss.xml",
-    # # 게임빌컴투스플랫폼
-    # "https://on.com2us.com/tag/기술블로그/feed",
-    # # 카카오페이
-    # "https://tech.kakaopay.com/rss",
-    # # 덴티움
-    # "https://www.dentium.tech/rss.xml",
-    # # 사람인
-    # "https://saramin.github.io/feed",
-    # # 올리브영
-    # "https://oliveyoung.tech/rss.xml",
-    # # 티빙
-    # "https://medium.com/feed/tving-team",
-    # # 11번가
-    # "https://11st-tech.github.io/rss",
-    # # 다나와
-    # "https://danawalab.github.io/feed",
-    # # 농심
-    # "https://tech.cloud.nongshim.co.kr/feed",
-    # # 트렌비
-    # "https://tech.trenbe.com/feed",
-    # # 교보DTS
-    # "https://blog.kyobodts.co.kr/feed",
-    # # 중고나라
-    # "https://teamblog.joonggonara.co.kr/feed",
-    # # 씨에스리
-    # "https://blog.cslee.co.kr/feed",
-    # # 글루시스
-    # "https://tech.gluesys.com/feed",
-    # # DND
-    # "https://blog.dnd.ac/feed",
-    # # LG유플러스
-    # "https://techblog.uplus.co.kr/feed",
+    "https://www.mobiinside.co.kr/feed",
+    "https://www.dailytrend.co.kr/feed",
+    "https://servicedesign.tistory.com/feed",
+    "https://blog.opensurvey.co.kr/feed",
+    "https://techblog.woowahan.com/feed",
+    "https://blog.rss.naver.com/businessinsight.xml",
+    "https://toss.tech/rss.xml",
+    "https://wp.outstanding.kr/feed",
+    "https://yozm.wishket.com/magazine/feed",
+    "https://platum.kr/feed",
+    "https://uppity.co.kr/feed",
+    "https://www.bespinglobal.com/feed",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCQ2DWm5Md16Dc3xRwwhVE7Q",
 ]
+
+
+def get_thumbnail_from_meta(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    meta_tag = soup.find("meta", property="og:image")
+    if meta_tag:
+        return meta_tag["content"]
+    return ""
 
 
 def generate_insert_query(entry, company_id):
@@ -181,12 +70,28 @@ async def fetch_rss_feeds():
                     and entry.published_parsed.tm_mday >= tm_mday
                 ):
 
+                    # guid로 중복 체크
+                    guid = entry.get("guid", "")
+                    exists = await session.execute(
+                        text("SELECT id FROM feed WHERE guid = :guid"),
+                        {"guid": guid},
+                    )
+                    if exists.scalar():
+                        continue
+
                     if "description" not in entry or entry.description is None:
                         entry["description"] = ""
                     else:
                         # 정규식으로 모든 쌍따옴표 제거
                         entry["description"] = re.sub(r'"', "", entry["description"])
                         entry["description"] = entry["description"][:100]
+
+                    thumbnail_url = entry.get("media_thumbnail", [{"url": None}])[0][
+                        "url"
+                    ]
+                    if not thumbnail_url:  # 썸네일 URL이 없으면 메타 데이터에서 추출
+                        thumbnail_url = get_thumbnail_from_meta(entry.link)
+                    entry["thumbnail"] = thumbnail_url
 
                     fields, values = generate_insert_query(entry, idx + 1)
                     insert_query = text(

@@ -3,6 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.utils.fetch_rss_feeds import fetch_rss_feeds
+from app.utils.refresh_rss_feeds import refresh_rss_feeds
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.base import JobLookupError
 from apscheduler.triggers.cron import CronTrigger
@@ -41,7 +42,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # @app.on_event("startup")
 # async def startup_event():
 #     # 앱 시작 시 한 번 실행
-#     await fetch_rss_feeds()
+#     await refresh_rss_feeds()
 
 
 def start_uvicorn():
