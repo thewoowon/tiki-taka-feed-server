@@ -4,6 +4,7 @@ from app.api.v1.api import api_router
 from app.core.config import settings
 from app.utils.fetch_rss_feeds import fetch_rss_feeds
 from app.utils.refresh_rss_feeds import refresh_rss_feeds
+from app.utils.rebuild_front_end import rebuild_front_end
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.base import JobLookupError
 from apscheduler.triggers.cron import CronTrigger
@@ -14,7 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI(
-    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title=settings.PROJECT_NAME, openapi_url=f"{
+        settings.API_V1_STR}/openapi.json"
 )
 
 # 스케쥴러 매일 새벽 2시에 실행
@@ -24,13 +26,17 @@ scheduler = AsyncIOScheduler()
 scheduler.add_job(
     fetch_rss_feeds, CronTrigger(hour=2, minute=0, timezone=korea_timezone)
 )
+scheduler.add_job(
+    rebuild_front_end, CronTrigger(hour=3, minute=0, timezone=korea_timezone)
+)
 scheduler.start()
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_origins=[str(origin)
+                       for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
